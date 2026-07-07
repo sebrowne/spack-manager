@@ -583,6 +583,26 @@ def test_concretize(tmpdir):
     assert spack.config.get("concretizer:concretization_cache:enable") is False
 
 
+def test_DistributionPackager_contains_only_nfs_file(tmpdir):
+    nfs_only_dir = os.path.join(tmpdir.strpath, "nfs_only")
+    os.makedirs(nfs_only_dir)
+    with open(os.path.join(nfs_only_dir, ".nfs000000000001"), "w") as out:
+        out.write("temp")
+    with open(os.path.join(nfs_only_dir, ".nfs000000000002"), "w") as out:
+        out.write("temp2")
+
+    assert distribution.contains_only_nfs_file(nfs_only_dir) is True
+
+    mixed_dir = os.path.join(tmpdir.strpath, "mixed")
+    os.makedirs(mixed_dir)
+    with open(os.path.join(mixed_dir, ".nfs000000000003"), "w") as out:
+        out.write("temp")
+    with open(os.path.join(mixed_dir, "real_file.txt"), "w") as out:
+        out.write("real")
+
+    assert distribution.contains_only_nfs_file(mixed_dir) is False
+
+
 def test_DistributionPackager_remove_unwanted_artifacts(tmpdir, monkeypatch):
     """
     This test verifies that `remove_unwanted_artifacts` removes files
@@ -614,6 +634,30 @@ def test_DistributionPackager_remove_unwanted_artifacts(tmpdir, monkeypatch):
     assert "spack.yaml" in env_assets
     assert not os.path.isfile(bad_file)
     assert os.path.isfile(good_file)
+
+
+def test_contains_only_nfs_file_true(tmpdir):
+    path = os.path.join(tmpdir.strpath, "nfs_only")
+    os.makedirs(path)
+
+    with open(os.path.join(path, ".nfs000000000001"), "w") as out:
+        out.write("busy")
+    with open(os.path.join(path, ".nfs000000000002"), "w") as out:
+        out.write("busy2")
+
+    assert distribution.contains_only_nfs_file(path) is True
+
+
+def test_contains_only_nfs_file_false(tmpdir):
+    path = os.path.join(tmpdir.strpath, "mixed")
+    os.makedirs(path)
+
+    with open(os.path.join(path, ".nfs000000000001"), "w") as out:
+        out.write("busy")
+    with open(os.path.join(path, "real_file.txt"), "w") as out:
+        out.write("real")
+
+    assert distribution.contains_only_nfs_file(path) is False
 
 
 def test_DistributionPackager_configure_includes(tmpdir):
