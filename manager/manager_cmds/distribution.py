@@ -256,10 +256,13 @@ class DistributionPackager:
         os.makedirs(self.path)
 
     def concretize(self):
-        spack.config.add("concretizer:concretization_cache:enable:false")
         tty.msg(f"Concretizing env: {self.env.name}....")
-        self.env.concretize(force=True)
-        self.env.write()
+        with self.env:
+            spack.config.add(
+                "concretizer:concretization_cache:enable:false", scope=self.env.scope_name
+            )
+            self.env.concretize(force=True)
+            self.env.write()
 
     def remove_unwanted_artifacts(self):
         include_patterns = [
