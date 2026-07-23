@@ -262,7 +262,7 @@ class DistributionPackager:
     def concretize(self):
         tty.msg(f"Concretizing env: {self.env.name}....")
         with self.env:
-            spack.config.add(
+            spack.config.CONFIG.add(
                 "concretizer:concretization_cache:enable:false", scope=self.env.scope_name
             )
             self.env.concretize(force=True)
@@ -379,7 +379,7 @@ class DistributionPackager:
         with self.environment_to_package:
             repos = spack.util.spack_yaml.syaml_dict()
             for scope in valid_env_scopes(self.environment_to_package):
-                repos.update(spack.config.get("repos", scope=scope))
+                repos.update(spack.config.CONFIG.get("repos", scope=scope))
 
         tty.msg(f"Packing up package repositories to {self.package_repos}....")
         os.makedirs(self.package_repos)
