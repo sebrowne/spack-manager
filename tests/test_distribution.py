@@ -22,6 +22,11 @@ import spack.solver.asp
 import spack.spec
 import spack.util.spack_yaml
 
+try:
+    from spack.active_environment import active_environment as active_environment
+except ImportError:
+    active_environment = spack.environment.active_environment
+
 
 def create_spack_manifest(path, specs=None, extra_data=None):
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -862,11 +867,11 @@ def test_DistributionPackager_context_erases_working_dir(tmpdir):
     with open(testfile, "w") as f:
         f.write("content")
     with env:
-        assert spack.environment.active_environment().name == env.name
+        assert active_environment().name == env.name
         with pkgr:
-            assert spack.environment.active_environment() is None
+            assert active_environment() is None
             assert not os.path.exists(testfile)
-        assert spack.environment.active_environment().name == env.name
+        assert active_environment().name == env.name
 
 
 def test_DistributionPackager_context_creates_working_dir(tmpdir):
@@ -876,11 +881,11 @@ def test_DistributionPackager_context_creates_working_dir(tmpdir):
     pkgr, root, env = init_test_environment(tmpdir.strpath)
 
     with env:
-        assert spack.environment.active_environment().name == env.name
+        assert active_environment().name == env.name
         with pkgr:
-            assert spack.environment.active_environment() is None
+            assert active_environment() is None
             assert os.path.isdir(root)
-        assert spack.environment.active_environment().name == env.name
+        assert active_environment().name == env.name
 
 
 def test_DistributionPackager_configure_source_mirror(tmpdir, monkeypatch):

@@ -17,6 +17,10 @@ import spack.environment
 import spack.extensions
 
 try:
+    from spack.active_environment import active_environment as active_environment
+except ImportError:
+    active_environment = spack.environment.active_environment
+try:
     import spack.llnl.util.filesystem as fs
 except ImportError:
     import spack.util.filesystem as fs
@@ -228,7 +232,7 @@ class DistributionPackager:
         self._cached_env = None
 
     def __enter__(self):
-        self._cached_env = spack.environment.active_environment()
+        self._cached_env = active_environment()
         tty.msg(f"Concretizing env: {self.environment_to_package.name}....")
         self.environment_to_package.concretize()
         self.environment_to_package.write()
